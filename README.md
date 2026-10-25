@@ -243,6 +243,6 @@ download.py ─► data/views.parquet ─► fit_decay.py ─► train_xgb.py �
 
 ## Team and acknowledgements
 
-Built at OxHacks 2026 (theme: *Time*; track: best use of data for prediction and decision making) by a team of second-year students in Computing, Physics, Electronic and Information Engineering, and Design Engineering.
+Built at OxHacks 2026 (theme: *Time*; track: best use of data for prediction and decision making) by Anay Gupta, Thomas Meeson, Omar Hyder, and Musa Ali (a team of second-year Imperial students in Computing, Physics, Electronic and Information Engineering, and Design Engineering).
 
 Data: [Wikimedia hourly pageviews](https://dumps.wikimedia.org/other/pageviews/) ([readme](https://dumps.wikimedia.org/other/pageviews/readme.html)), released under CC0.
