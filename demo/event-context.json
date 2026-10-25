@@ -1,0 +1,4 @@
+{
+  "description": "Optional editorial explanations keyed by exact article title. Only entries with status checked and an HTTPS source are displayed. Counts and catch lags always come from the replay JSON.",
+  "events": {}
+}

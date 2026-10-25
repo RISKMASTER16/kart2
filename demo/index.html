@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Ahead of the Spike · Understand, explore, discover</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="provenance.js" defer></script>
+  <script src="foresight.js" defer></script>
+  <script src="spikes.js" defer></script>
+  <script src="presentation.js" defer></script>
+  <script src="journey.js" defer></script>
+  <script src="storage.js" defer></script>
+  <script src="replay-data.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="masthead">
+    <button id="contents-toggle" class="secondary contents-toggle" type="button" aria-expanded="false" aria-controls="article-sidebar">Contents</button>
+    <a class="wordmark" href="#start" data-go="start">Ahead of the Spike<span>A Wikipedia attention experiment</span></a>
+    <form class="project-search" role="search"><label class="sr-only" for="project-query">Search this project</label><input id="project-query" type="search" placeholder="Search this project" maxlength="120"><button type="submit">Search</button><div id="search-results" hidden aria-label="Search results"><p id="search-message" role="status"></p><ul></ul></div></form>
+  </header>
+  <div class="article-layout">
+    <aside id="article-sidebar" class="article-sidebar" aria-label="Project navigation">
+      <nav class="journey-nav" aria-label="Project pages"><strong>Explore the project</strong><a href="#start" data-go="start" aria-current="page">Introduction</a><a href="#explore" data-go="explore">Explore a day</a><a href="#results" data-go="results">Results</a><a href="#storage" data-go="storage">Storage comparison</a></nav>
+      <nav class="article-contents" aria-label="On this page"><strong>On this page</strong><ul id="section-links"></ul></nav>
+    </aside>
+    <main id="main">
+    <div class="article-toolbar"><span>Project article</span><span class="provenance" id="provenance">DEVELOPMENT DATA / UNVERIFIED</span></div>
+    <div id="status" class="status" role="status" aria-live="polite">Loading the supplied replay dataset…</div>
+    <button id="retry" type="button" hidden>Try loading again</button>
+
+    <section class="journey-view" data-view="start" aria-labelledby="start-title">
+      <div class="intro">
+        <div><p class="eyebrow">STEP 1 OF 3 · THE IDEA</p><h1 id="start-title" tabindex="-1">Better cache choices,<br>hours ahead.</h1><p class="hero-copy">A cache is fast storage for copies of articles. It has limited room. We test whether a model can choose better articles than a simple rule before readers arrive.</p><a class="button" href="#explore" data-go="explore">See it in action <span aria-hidden="true">→</span></a></div>
+        <div class="cache-illustration" aria-label="Concept illustration: choose a few articles for limited fast storage">
+          <p class="illustration-label">THE CHALLENGE, IN ONE PICTURE</p>
+          <div class="paper-stack" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+          <p class="illustration-caption">Lots of articles</p><span class="flow-arrow" aria-hidden="true">↓</span>
+          <div class="cache-box"><span class="cache-slot"></span><span class="cache-slot"></span><span class="cache-slot empty"></span><strong>Limited fast storage</strong></div>
+          <p class="illustration-question">Which ones should be ready next?</p><small>Concept illustration</small>
+        </div>
+      </div>
+      <section class="method-introduction" aria-labelledby="methods-title"><div><p class="eyebrow">WHAT WE COMPARE</p><h2 id="methods-title">A simple rule. A learned model.</h2></div><div class="method-definitions"><article><p class="method-kind">THE BASELINE</p><h3>Standard rule</h3><p>Assume the next hour looks like the latest observed hour. Keep the articles that were most popular then.</p></article><article><p class="method-kind">OUR PREDICTOR</p><h3>Our model (XGBoost)</h3><p>Learn patterns in past views, including daily rhythms and how attention fades. Predict demand for the future hour.</p></article></div><p class="metric-note">Both can be tested one, two, three or six hours ahead. We compare their cache choices at the same planning time and capacity.</p></section>
+      <ol class="lesson-steps" aria-label="How the experiment works">
+        <li><span class="lesson-number">01</span><h2>Use only the past.</h2><p>Both methods see earlier page views. The hour being tested is still in the future.</p></li>
+        <li><span class="lesson-number">02</span><h2>Choose the cache.</h2><p>Each method ranks articles and selects 100,000 to keep in fast storage.</p></li>
+        <li><span class="lesson-number">03</span><h2>Check what happened.</h2><p>Replay actual views in the later hour. Count the share that would find their article already stored.</p></li>
+      </ol>
+      <p class="quiet-note">This is a historical experiment, not a live change to Wikipedia's servers.</p>
+      <div class="page-end"><span>Next: watch one day unfold.</span><a class="button" href="#explore" data-go="explore">Explore the day →</a></div>
+    </section>
+
+    <div id="replay" hidden>
+      <section class="journey-view" data-view="explore" hidden aria-labelledby="snapshot-title">
+        <div class="view-intro"><p class="eyebrow">STEP 2 OF 3 · COMPARE THE OUTCOMES</p><h1 id="snapshot-title" tabindex="-1">Two methods.<br>One recorded day.</h1><p>Press Play to compare the standard rule and our model as the day unfolds. The percentages are their measured cache results. The article list shows what people actually read.</p></div>
+        <aside class="replay-scope"><strong>100,000 article spaces. Choices made one hour ahead.</strong><span>Both methods use earlier data. We score their choices against the actual views in the selected hour.</span></aside>
+        <div class="replay-toolbar"><div class="timestamp"><time id="hour"></time><span id="interval"></span></div><span class="scope-chip" id="capacity"></span></div>
+        <section class="transport" aria-label="Replay controls">
+          <div class="transport-buttons"><button id="previous" type="button" class="secondary" aria-label="Previous available hour">← Previous hour</button><button id="play" type="button">Play</button><button id="next" type="button" class="secondary" aria-label="Next available hour">Next hour →</button></div>
+          <div class="timeline-control"><div class="timeline-heading"><label for="timeline">Move through the day</label><span id="playback-state"></span></div><input id="timeline" type="range" min="0" max="0" step="1" value="0" aria-describedby="coverage"><div class="timeline-ends"><span id="timeline-start"></span><span id="timeline-end"></span></div></div>
+          <p id="coverage" class="coverage"></p><p id="replay-announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+        </section>
+        <ol class="decision-sequence" aria-label="How the selected hour is evaluated"><li><span>1. Read earlier data</span><p id="history-cutoff"></p></li><li><span>2. Choose 100,000 articles</span><p>Each method fills its cache before the hour being scored.</p></li><li><span>3. Check actual views</span><p id="observed-window"></p></li></ol>
+        <div class="score-heading"><h2>How much of this hour would the cache serve?</h2><span>Cache hit rate</span></div>
+        <div class="performance" id="performance" aria-label="Share of views served from fast storage for the selected hour"></div>
+        <p class="hourly-gap" id="hourly-gap"></p><p class="metric-note">A cache hit means the requested article was already stored. These percentages measure views the cache would serve, not how many predictions were correct.</p>
+        <section class="leaderboard" aria-labelledby="leaderboard-title">
+          <div class="section-heading"><div><p class="eyebrow">ACTUAL OBSERVED DEMAND</p><h2 id="leaderboard-title">What people actually read</h2></div><button id="show-pages" type="button" class="text-button" aria-expanded="false" aria-controls="table-body">Show all articles</button></div>
+          <p id="page-count" class="metric-note"></p><p class="table-hint" id="table-hint">✓ Ready means already in fast storage. × Not ready means the main server would be needed.</p>
+          <div class="table-scroll" role="region" aria-label="Article leaderboard; scroll sideways on small screens" aria-describedby="table-hint" tabindex="0"><table><caption class="sr-only">Actual article views in the selected hour, not predicted values</caption><thead id="table-head"></thead><tbody id="table-body"></tbody></table></div>
+        </section>
+        <details class="learn-more"><summary>What exactly am I looking at?</summary><div class="details-content"><p>Each row is an article from the recorded hour. Article popularity is the same whatever the storage capacity. This list shows demand, not which articles were stored.</p><dl class="context"><div><dt>Recorded views this hour</dt><dd id="total"></dd></div><div><dt>Available hours</dt><dd id="hour-count"></dd></div></dl><p>The hourly 100,000 article scores come from Computing's published hourly results. The article list and view counts come from the recorded day. Individual 100,000 article cache choices have not been supplied.</p><p>Percentages use views in the retained top 150,000 English Wikipedia articles each hour, not all Wikipedia traffic or just the rows shown here. The team's cache choices are made hourly and treat articles as equal in size. All times are UTC.</p></div></details>
+        <div class="page-end"><a class="back-link" href="#start" data-go="start">← Back to the idea</a><a class="button" href="#results" data-go="results">See the 100,000 article results →</a></div>
+      </section>
+
+      <section class="journey-view" data-view="results" hidden aria-labelledby="results-title">
+        <div class="view-intro"><p class="eyebrow">STEP 3 OF 3 · THE FIRST QUESTION</p><h1 id="results-title" tabindex="-1">Does forecasting<br>choose better articles?</h1><p id="result-takeaway">Explore the recorded results below.</p></div>
+        <section aria-labelledby="summary-title" class="summary-panel"><div class="results-context"><p class="capacity-tag">The main test <strong>100,000 article spaces</strong><span>One hour ahead</span></p><a class="button secondary-link" href="#storage" data-go="storage">Compare storage sizes <span aria-hidden="true">→</span></a></div>
+          <h2 id="summary-title" tabindex="-1">Two ways to choose. One fair comparison.</h2><p class="section-copy">These are average hourly cache hit rates across the test period. Both methods choose one hour ahead with room for 100,000 articles. The sample covers the top 150,000 English Wikipedia articles each hour.</p>
+          <dl id="summary-values" class="summary-grid"></dl>
+          <div class="result-explainer" id="result-explainer"></div>
+          <details class="learn-more"><summary>How was this measured?</summary><div class="details-content"><p id="summary-scope"></p><dl id="oracle-values" class="summary-grid"></dl><p id="oracle-note"></p><p id="run-note"></p><p class="report-links"><a href="../out/results.csv" download>Download results</a> · <a href="../out/charts_100k/key_numbers.md" target="_blank" rel="noopener">Read the team's report</a></p></div></details>
+        </section>
+        <section class="foresight" aria-labelledby="foresight-title">
+          <h2 id="foresight-title" tabindex="-1">What if we have to choose earlier?</h2><p class="section-copy">Six hours ahead means both methods must choose six hours before the hour being scored. The standard rule still reuses the latest observed popularity. Our model forecasts demand for that future hour.</p>
+          <section class="horizon-lab" aria-label="Try different planning horizons">
+          <fieldset class="horizon-picker"><legend>How early should both methods choose?</legend><label><input type="radio" name="planning-horizon" value="1" checked><span>1 hour</span></label><label><input type="radio" name="planning-horizon" value="2"><span>2 hours</span></label><label><input type="radio" name="planning-horizon" value="3"><span>3 hours</span></label><label><input type="radio" name="planning-horizon" value="6"><span>6 hours</span></label></fieldset>
+          <ol class="planning-timeline"><li><strong>Make the choice</strong><span>Use only earlier views</span></li><li><strong id="planning-wait">Wait 1 hour</strong><span>Keep the planning time equal</span></li><li><strong>Measure actual demand</strong><span>Check which views the cache serves</span></li></ol>
+          <div id="horizon-outcome" aria-live="polite" aria-atomic="true"></div>
+          <p class="metric-note">These are published historical results, not a new simulation. Storage stays fixed at 100,000 articles. Bars use a 0–100% scale.</p>
+          </section><div id="published-findings" class="findings-grid"></div>
+          <details class="learn-more"><summary>Show the chart and technical details</summary><div class="details-content"><p id="findings-note"></p><p id="foresight-status"></p><p id="foresight-coverage"></p><ul id="foresight-legend" class="chart-legend" aria-label="Chart series"></ul><div class="chart-scroll" role="region" aria-label="Results chart; scroll sideways on small screens" tabindex="0"><svg id="foresight-chart" viewBox="0 0 760 340" role="img" aria-labelledby="foresight-chart-title"></svg></div><div class="foresight-values" role="region" aria-label="Exact results" tabindex="0"><table><caption>Share of recorded views served from fast storage</caption><thead id="foresight-head"></thead><tbody id="foresight-body"></tbody></table></div><a href="../out/charts_100k/1_vs_standard_rule.png" target="_blank" rel="noopener">See the published statistical comparison</a></div></details>
+        </section>
+        <section class="spike-story" aria-labelledby="spike-title">
+          <h2 id="spike-title" tabindex="-1">What about sudden bursts of interest?</h2><p id="spike-plain" class="section-copy">A sudden surge is called a spike. We also checked how the approaches handled these.</p>
+          <details class="learn-more" id="spike-details"><summary>See actual article views during a surge</summary><div class="details-content"><p class="observed-notice">Recorded observations only. This chart contains no predicted view values or model catch times. It cannot establish that a spike was predicted six hours early.</p><p id="spike-status"></p><label for="spike-select" class="spike-label">Choose an article</label><select id="spike-select" aria-describedby="spike-status"></select><div id="spike-content" hidden><div class="spike-heading"><div><h3 id="spike-name"></h3><p id="spike-time"></p></div><button id="spike-jump" type="button" class="secondary">Compare methods at this hour</button></div><p id="spike-context"></p><p id="spike-warning" class="spike-warning" role="status" hidden></p><p class="metric-note">The line shows actual views. The dotted line marks the recorded surge onset. Scroll sideways on smaller screens.</p><div class="chart-scroll" role="region" aria-label="Actual article views" tabindex="0"><svg id="spike-chart" role="img" aria-labelledby="spike-chart-title"></svg></div><details class="spike-details"><summary>See exact hourly counts</summary><div class="spike-table" role="region" aria-label="Hourly counts" tabindex="0"><table><caption>Actual counts from this article's recorded trajectory</caption><thead><tr><th scope="col">Hour (UTC)</th><th scope="col">Views</th></tr></thead><tbody id="spike-values"></tbody></table></div></details></div></div></details>
+        </section>
+        <aside class="limits" aria-labelledby="limits-title"><h2 id="limits-title" tabindex="-1">What this doesn't prove.</h2><p class="section-copy">This is one short historical test. It doesn't mean we can predict breaking news or replace Wikipedia's live caching system.</p><details class="learn-more"><summary>Read the limitations</summary><div class="details-content"><ul><li>Only a few days were evaluated; other weeks and languages may differ.</li><li>Our denominator is the top 150,000 English Wikipedia articles each hour.</li><li>Storage choices change once an hour and assume equal article sizes.</li><li>Unexpected first-hour surges may have no advance signal.</li><li>Statistical uncertainty describes this test period, not every possible future day.</li><li>Traffic that resembles bots was flagged, not removed.</li></ul></div></details></aside>
+        <section class="next-question"><div><p class="eyebrow">THE NEXT QUESTION</p><h2>What if we use different cache capacities?</h2><p>We started with space for 10,000 articles, then tested 100,000. Compare how the two cache capacities performed.</p></div><a class="button" href="#storage" data-go="storage">Compare storage sizes <span aria-hidden="true">→</span></a></section><div class="page-end"><a class="back-link" href="#explore" data-go="explore">← Explore the day again</a><button id="pitch-start" type="button" class="secondary">Start from the beginning</button></div>
+      </section>
+      <section class="journey-view" data-view="storage" hidden aria-labelledby="storage-title">
+        <div class="view-intro"><a class="back-link" href="#results" data-go="results">← Back to forecasting results</a><p class="eyebrow">THE SECOND QUESTION</p><h1 id="storage-title" tabindex="-1">What changes with different cache capacities?</h1><p id="storage-question"></p></div>
+        <div class="comparison-rules"><span><strong>Same planning time</strong> Choose one hour ahead</span><span><strong>Same recorded hours</strong> Compare the same audience</span><span><strong>One thing changes</strong> The number of article spaces</span></div>
+        <fieldset class="method-picker"><legend>Keep the method fixed. Which one would you like to compare?</legend><label><input type="radio" name="storage-method" value="our_model" checked><span>Our model (XGBoost)</span></label><label><input type="radio" name="storage-method" value="last_hour"><span>Standard rule</span></label></fieldset>
+        <p class="metric-note">Both capacities stay visible. Switch the method to see its measured results at each size. Each filled block represents space for 10,000 articles; the bars measure views served on a 0–100% scale.</p><div id="storage-comparison" class="storage-grid"></div>
+        <div id="storage-answer" class="storage-answer" aria-live="polite"></div>
+        <details class="learn-more"><summary>How to read this comparison</summary><div class="details-content"><p>The filled blocks show relative article capacity. Each block stands for 10,000 article spaces. The bars show recorded views served from fast storage on a scale from zero to 100 percent.</p><p>Values per 1,000 are rounded illustrations of the average hit rates. Both sizes use the same 72 hours at a one hour planning time. A page view is counted in the retained top 150,000 English Wikipedia articles for that hour.</p><p>Each article counts as one space. This is not a comparison of storage in bytes, hardware price or financial savings. Bigger storage helped in this test; it does not establish the best cost tradeoff.</p><a href="../out/results.csv" download>Download the measured results</a></div></details>
+        <div class="page-end"><a class="button" href="#results" data-go="results">Back to the forecasting question</a><a class="back-link" href="#start" data-go="start">Start from the beginning</a></div>
+      </section>
+    </div>
+  </main>
+  </div>
+  <footer><span>AHEAD OF THE SPIKE · OXHACK</span><span>Recorded English Wikipedia page views · UTC</span></footer>
+</body>
+</html>

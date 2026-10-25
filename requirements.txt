@@ -1,0 +1,12 @@
+pandas>=2.0
+pyarrow>=14
+numpy>=1.24
+scipy>=1.10
+xgboost>=2.0
+matplotlib>=3.7
+requests>=2.31
+# demo backend (api.py)
+fastapi>=0.110
+uvicorn>=0.27
+# optional: experimental transformer in future/transformer/
+# torch>=2.1
