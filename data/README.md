@@ -12,7 +12,7 @@ python make_fake_data.py                                                  # smal
 |---|---|
 | `views.parquet` | One row per page per hour: `hour`, `page`, `views` (format in [INTERFACES.md](../INTERFACES.md#2-dataviewsparquet)) |
 | `missing_hours.txt` | Hours that could not be downloaded, one per line (empty when none are missing) |
-| `hours/` | Per-hour files written while downloading; merged into `views.parquet` |
+| `hours/` | Per-hour files written while downloading (and by the live planner); merged into `views.parquet` |
 
 Source: [Wikimedia hourly pageviews](https://dumps.wikimedia.org/other/pageviews/), released under CC0.
 Run `python checks.py` after downloading to report missing hours, incomplete hours and suspected bot traffic.

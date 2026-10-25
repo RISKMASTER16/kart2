@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Ahead of the Spike · Live cache planner</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .live-badge { display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--muted); }
+    .live-dot { width:9px; height:9px; border-radius:50%; background:#a2a9b1; }
+    .live-badge[data-mode="live"] .live-dot { background:#14866d; box-shadow:0 0 0 0 #14866d66; animation:pulse 2s infinite; }
+    .live-badge[data-mode="live"] { color:#14866d; }
+    .live-badge[data-mode="replay"] .live-dot, .live-badge[data-mode="offline"] .live-dot { background:#ac6600; }
+    .live-badge[data-mode="replay"], .live-badge[data-mode="offline"] { color:#ac6600; }
+    @keyframes pulse { 70% { box-shadow:0 0 0 8px #14866d00; } 100% { box-shadow:0 0 0 0 #14866d00; } }
+    @media (prefers-reduced-motion: reduce) { .live-dot { animation:none !important; } }
+    .live-clock { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:0; border:1px solid var(--line); margin:22px 0 8px; }
+    .live-clock div { padding:14px 16px; border-right:1px solid #eaecf0; }
+    .live-clock div:last-child { border-right:0; }
+    .live-clock span { display:block; font-size:12px; color:var(--muted); margin-bottom:4px; }
+    .live-clock strong { font-size:20px; font-variant-numeric:tabular-nums; }
+    .live-status { font-size:13px; color:var(--muted); margin:6px 0 26px; min-height:1.4em; }
+    .size-picker { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 18px; }
+    .size-picker label { border:1px solid var(--line); padding:8px 14px; cursor:pointer; font-size:14px; background:#f8f9fa; }
+    .size-picker input { margin-right:6px; }
+    .size-picker label:has(input:checked) { border-color:#36c; background:#eaf3ff; font-weight:700; }
+    .score-cards { display:grid; grid-template-columns:1fr 1fr; border:1px solid var(--line); }
+    .score-cards article { padding:20px 22px; }
+    .score-cards article + article { border-left:1px solid var(--line); }
+    .score-cards h3 { margin:0 0 4px; font-size:15px; }
+    .score-cards .rate { margin:8px 0 4px; }
+    .score-cards .model .rate { color:#36c; }
+    .live-table { width:100%; border-collapse:collapse; font-size:14px; font-variant-numeric:tabular-nums; }
+    .live-table th { text-align:left; font-size:12px; color:var(--muted); font-weight:700; border-bottom:1px solid var(--line); padding:8px 10px; background:#f8f9fa; }
+    .live-table td { padding:8px 10px; border-bottom:1px solid #eaecf0; }
+    .live-table .num { text-align:right; }
+    .trend-up { color:#14866d; } .trend-down { color:#bf3c2c; }
+    .tag { display:inline-block; font-size:11px; padding:1px 6px; border:1px solid #36c; color:#36c; margin-left:6px; white-space:nowrap; }
+    .diff-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+    .diff-grid ol { margin:8px 0 0; padding-left:22px; font-size:14px; }
+    .diff-grid li { margin:5px 0; }
+    .diff-grid li span { color:var(--muted); font-size:12px; margin-left:4px; }
+    section.live-section { margin:40px 0; }
+    @media (max-width:760px) { .live-clock, .score-cards, .diff-grid { grid-template-columns:1fr; } .live-clock div, .score-cards article + article { border-right:0; border-left:0; border-top:1px solid #eaecf0; } }
+  </style>
+  <script src="live.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="masthead">
+    <a class="wordmark" href="index.html#start">Ahead of the Spike<span>A Wikipedia attention experiment</span></a>
+  </header>
+  <div class="article-layout">
+    <aside id="article-sidebar" class="article-sidebar" aria-label="Project navigation">
+      <nav class="journey-nav" aria-label="Project pages"><strong>Explore the project</strong><a href="index.html#start">Introduction</a><a href="index.html#explore">Explore a day</a><a href="index.html#results">Results</a><a href="index.html#storage">Storage comparison</a><a href="live.html" aria-current="page">Live now</a></nav>
+      <nav class="article-contents" aria-label="On this page"><strong>On this page</strong><ul><li><a href="#plan">The next hour's cache</a></li><li><a href="#scores">How the last hours went</a></li><li><a href="#differences">Where the methods disagree</a></li><li><a href="#how">How this works</a></li></ul></nav>
+    </aside>
+    <main id="main">
+      <div class="article-toolbar"><span>Live cache planner</span><span class="live-badge" id="mode" data-mode="starting"><span class="live-dot" aria-hidden="true"></span><span id="mode-text">Connecting…</span></span></div>
+
+      <div class="view-intro" style="margin-top:28px">
+        <p class="eyebrow" id="eyebrow">LIVE · ENGLISH WIKIPEDIA</p>
+        <h1>The cache for the next hour, chosen now.</h1>
+        <p>Every time Wikipedia publishes a new hour of page views, our model reads it, predicts the next hour and picks the articles to keep in fast storage. Once that hour has happened, both methods are scored against what people actually read.</p>
+      </div>
+
+      <div class="live-clock" aria-label="Timing">
+        <div><span>Latest published hour</span><strong id="latest">–</strong></div>
+        <div><span>Choosing the cache for</span><strong id="target">–</strong></div>
+        <div><span>Views in the latest hour</span><strong id="total">–</strong></div>
+      </div>
+      <p class="live-status" id="status" role="status" aria-live="polite">Connecting to the local server…</p>
+
+      <fieldset class="size-picker" style="border:0;padding:0">
+        <legend class="eyebrow" style="margin-bottom:8px">CACHE SIZE</legend>
+        <label><input type="radio" name="size" value="100000" checked>100,000 articles</label>
+        <label><input type="radio" name="size" value="10000">10,000 articles</label>
+      </fieldset>
+
+      <section class="live-section" id="scores" aria-labelledby="scores-title">
+        <p class="eyebrow">ALREADY HAPPENED · MEASURED</p>
+        <h2 id="scores-title">How the last hours went</h2>
+        <p class="metric-note" id="scores-note">Each method chose its cache using only data published before the hour, then was scored on the actual views.</p>
+        <div class="score-cards" id="score-cards"></div>
+        <div class="table-scroll" style="margin-top:18px" tabindex="0" role="region" aria-label="Recent hourly scores">
+          <table class="live-table"><thead><tr><th scope="col">Hour (UTC)</th><th scope="col" class="num">Standard rule</th><th scope="col" class="num">Our model</th><th scope="col" class="num">Difference</th></tr></thead><tbody id="scores-body"></tbody></table>
+        </div>
+      </section>
+
+      <section class="live-section" id="plan" aria-labelledby="plan-title">
+        <p class="eyebrow">NOT HAPPENED YET · PREDICTED</p>
+        <h2 id="plan-title">The next hour's cache</h2>
+        <p class="metric-note" id="plan-note">The articles our model expects to be read most in the next hour.</p>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Predicted most-read articles for the next hour">
+          <table class="live-table"><thead><tr><th scope="col">#</th><th scope="col">Article</th><th scope="col" class="num">Views, latest hour</th><th scope="col" class="num">Predicted next hour</th><th scope="col" class="num">Change</th></tr></thead><tbody id="plan-body"></tbody></table>
+        </div>
+      </section>
+
+      <section class="live-section" id="differences" aria-labelledby="diff-title">
+        <p class="eyebrow">WHERE THE METHODS DISAGREE</p>
+        <h2 id="diff-title">What our model does differently</h2>
+        <p class="metric-note" id="diff-note"></p>
+        <div class="diff-grid">
+          <div><h3>Our model adds</h3><p class="metric-note">Not in last hour's top pages, but predicted to be read.</p><ol id="adds"></ol></div>
+          <div><h3>Our model drops</h3><p class="metric-note">Popular last hour, but predicted to fade.</p><ol id="drops"></ol></div>
+        </div>
+      </section>
+
+      <section class="live-section" id="how" aria-labelledby="how-title">
+        <h2 id="how-title">How this works</h2>
+        <p>Wikimedia publishes English Wikipedia page views once an hour, usually one to two hours after the hour ends, so "live" here means the newest published hour. The local server fetches each new hour, keeps the top 150,000 pages, and runs the same XGBoost model and standard rule as in our results. Scores use only data that existed before each scored hour.</p>
+        <p class="quiet-note">This planner runs on your computer and makes no change to Wikipedia's servers. Page titles link to the articles on Wikipedia.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

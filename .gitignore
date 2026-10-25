@@ -1,0 +1,6 @@
+
+# Transfer files
+*.bundle
+*.zip
+__pycache__/
+*.pyc

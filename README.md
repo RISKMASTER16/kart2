@@ -114,14 +114,27 @@ Results for a 10,000-page cache are in [`out/charts/`](out/charts/) and [`out/ch
 
 ## Interactive demo
 
-An article-style walkthrough of the results: the problem, a replay of one day of Wikipedia traffic with both methods' hit rates hour by hour, the aggregate results, and a cache-size comparison. It runs fully offline.
+An article-style walkthrough of the results: the problem, a replay of one day of Wikipedia traffic with both methods' hit rates hour by hour, the aggregate results, and a cache-size comparison. The walkthrough runs fully offline; the live planner fetches new data when online.
 
 ```bash
 pip install -r requirements.txt
 uvicorn api:app --port 8000        # then open http://127.0.0.1:8000/
 ```
 
-No Python packages? `python -m http.server 8000` from the repository root, then open `http://127.0.0.1:8000/demo/#start`. Details, data sources and the built-in integrity check are in [`demo/README.md`](demo/README.md). The same server exposes the results as JSON (`/api/results`, `/api/hours`, `/api/spikes`; interactive docs at `/docs`).
+### Live cache planner
+
+The **Live now** page (`/demo/live.html`) runs the model on the newest data. Each time Wikimedia publishes a new hour of page views (usually one to two hours after it ends), the server fetches it, chooses the cache for the next hour with XGBoost and with the standard rule, shows where they disagree, and scores both methods on the hours that have since happened. It needs the trained models (`python fit_decay.py && python train_xgb.py`).
+
+```bash
+uvicorn api:app --port 8000                                  # live: fetches recent hours, then every new one
+LIVE_DOWNLOAD=0 uvicorn api:app --port 8000                  # offline: newest data already on disk
+LIVE_AS_OF="2026-10-22 20:00" uvicorn api:app --port 8000    # replay a past hour as if it were now
+python live.py                                               # the same plan, printed in the terminal
+```
+
+On Windows PowerShell, set the variable first: `$env:LIVE_AS_OF="2026-10-22 20:00"; uvicorn api:app --port 8000`.
+
+No Python packages? `python -m http.server 8000` from the repository root, then open `http://127.0.0.1:8000/demo/#start` (everything except the live page works). Details, data sources and the built-in integrity check are in [`demo/README.md`](demo/README.md). The same server exposes the results as JSON (`/api/results`, `/api/hours`, `/api/spikes`; interactive docs at `/docs`).
 
 ## Repository map
 
@@ -162,9 +175,10 @@ No Python packages? `python -m http.server 8000` from the repository root, then 
 │   └── xgb_report/               XGBoost vs simple methods, with paired tests
 │
 │   Demo
-├── api.py                        local server: front end + JSON API
+├── api.py                        local server: front end, JSON API and live planner
+├── live.py                       live planner: fetches each new hour, chooses the next hour's cache
 ├── demo.json                     replay of 22 Oct 2026 (top pages, hit rates, spikes)
-├── demo/                         front end: plain HTML/CSS/JS, no build step
+├── demo/                         front end: plain HTML/CSS/JS, no build step (live.html: live planner)
 │
 │   Documentation and future work
 ├── docs/
@@ -179,7 +193,7 @@ No Python packages? `python -m http.server 8000` from the repository root, then 
 |---|---|
 | See the results in two minutes | The headline above, then [`out/charts_100k/key_numbers.md`](out/charts_100k/key_numbers.md) |
 | Check the statistics | [`out/xgb_report/xgb_report.md`](out/xgb_report/xgb_report.md) and [`out/value_metrics.md`](out/value_metrics.md) |
-| Try it | The [interactive demo](#interactive-demo) |
+| Try it | The [interactive demo](#interactive-demo), including the live cache planner |
 | Understand the method | [How it works](#how-it-works), then [`INTERFACES.md`](INTERFACES.md) |
 | Read the code | [`backtest.py`](backtest.py) (the evaluation), then [`predictors/baselines.py`](predictors/baselines.py), [`predictors/xgb_features.py`](predictors/xgb_features.py) and [`predictors/decay_predict.py`](predictors/decay_predict.py); a walkthrough is in the [codebase guide](docs/Ahead%20of%20the%20Spike%20%E2%80%94%20Codebase%20Guide.pdf) |
 | Add a new method | [`INTERFACES.md` section 3](INTERFACES.md#3-predictors): write one `predict()` function and register it in `predictors/__init__.py` |

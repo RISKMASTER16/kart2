@@ -10,6 +10,12 @@ Pages and files:
     GET /demo.json             the replay file read by the front end
     GET /out/<file>            backtest outputs (results.csv, hourly.csv, charts, reports)
 
+Live cache planner (live.py, started with the server):
+    GET /demo/live.html        live page: the cache chosen for the next hour, and recent scores
+    GET /api/live              the live engine's current state as JSON
+    Environment variables: LIVE=0 disables it; LIVE_DOWNLOAD=0 uses only data on disk;
+    LIVE_AS_OF="2026-10-22 20:00" replays that hour as if it were the latest (no internet needed).
+
 JSON API (files are read on each request, so re-running backtest.py needs no restart):
     GET /api/demo              the whole replay file (INTERFACES.md section 5)
     GET /api/hours             replay hours with both hit rates
@@ -21,6 +27,8 @@ JSON API (files are read on each request, so re-running backtest.py needs no res
 from __future__ import annotations
 
 import json
+import os
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 import pandas as pd
@@ -33,7 +41,22 @@ ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "out"
 DEMO_DIR = ROOT / "demo"
 
-app = FastAPI(title="Ahead of the Spike")
+LIVE = {"engine": None}
+
+
+@asynccontextmanager
+async def lifespan(_app):
+    if os.environ.get("LIVE", "1") != "0":
+        from live import LiveEngine
+        as_of = os.environ.get("LIVE_AS_OF")
+        engine = LiveEngine(download=os.environ.get("LIVE_DOWNLOAD", "1") != "0",
+                            as_of=pd.Timestamp(as_of) if as_of else None)
+        engine.start()
+        LIVE["engine"] = engine
+    yield
+
+
+app = FastAPI(title="Ahead of the Spike", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET"], allow_headers=["*"])
 
 
@@ -90,6 +113,13 @@ def get_spikes():
 def get_summary():
     d = demo()
     return {"our_model_name": d.get("our_model_name"), **d["summary"]}
+
+
+@app.get("/api/live")
+def get_live():
+    if LIVE["engine"] is None:
+        raise HTTPException(503, "live planner is disabled (LIVE=0)")
+    return LIVE["engine"].snapshot()
 
 
 @app.get("/api/results")

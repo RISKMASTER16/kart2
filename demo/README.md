@@ -29,13 +29,15 @@ Open it via `localhost` (or HTTPS); browsers only allow the integrity check belo
 | **Explore a day** | A replay of 22 October 2026: hourly article demand and both methods' hit rates with a 100,000-page cache. Play/pause, a time slider (arrow keys, Home, End), and the top articles each hour (6 rows, expandable to 50). |
 | **Results** | Average hit rates at 100,000 pages, paired gains 1 and 6 hours ahead, and the foresight curve. |
 | **Storage comparison** | The same method and planning time with 10,000 versus 100,000 pages. |
+| **Live now** (`live.html`) | The cache chosen for the next hour from the newest published data, where XGBoost and the standard rule disagree, and both methods' scores on recent hours. Needs `api.py` (see the main README). |
 
 Navigation supports browser history and moves keyboard focus; navigating pauses playback. Technical
 details are collapsible, and Reset returns to the start.
 
 ## Where the numbers come from
 
-The front end never computes results; it only displays published files.
+The walkthrough pages never compute results; they only display published files. (The Live now page shows
+the live planner's output from `api.py` instead, clearly labelled with the data's age.)
 
 - **Demand** (article views per hour) comes from `demo.json`. It does not depend on cache size.
 - **Hourly hit rates** on the Explore page are read from `out/hourly.csv` (cache size 100,000,
