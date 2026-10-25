@@ -56,7 +56,7 @@ async def lifespan(_app):
     yield
 
 
-app = FastAPI(title="Ahead of the Spike", lifespan=lifespan)
+app = FastAPI(title="Cachanium", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET"], allow_headers=["*"])
 
 

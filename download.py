@@ -40,7 +40,7 @@ EXCLUDE_PREFIXES = (
     "Help_talk:", "Draft:", "Draft_talk:", "Module:", "MediaWiki:", "TimedText:",
 )
 EXCLUDE_EXACT = {"Main_Page", "-"}
-HEADERS = {"User-Agent": "AheadOfTheSpike/1.0 (caching research; https://github.com/thomas-meeson/KRT)"}
+HEADERS = {"User-Agent": "Cachanium/1.0 (caching research; https://github.com/RISKMASTER16/kart2)"}
 
 
 def file_url(base: str, hour: pd.Timestamp) -> str:
